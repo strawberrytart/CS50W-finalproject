@@ -1,0 +1,14 @@
+{% extends 'checklist/layout.html' %}
+{% load static %}
+
+{% block body %}
+<div class="container">
+    <h1> {{ checklist.salesOrder }}</h1>
+    {% include 'checklist/partials/forms.html' %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'checklist/pump.js' %}"></script>
+{% endblock %}

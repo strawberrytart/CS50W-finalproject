@@ -1,0 +1,23 @@
+<form method = "POST" action ="{% url 'checklist_update' checklist.id %}">
+    <!-- hx-post="{% url 'checklist_update' checklist.id %}" hx-swap = "outerHTML" -->
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    {{ formset.management_form }}
+    <div class="pump-form-list">
+        {% for form in formset %}
+            <div class="pump-form">
+        {{ form.as_p }}
+            </div>
+            <hr>
+        {% endfor %}
+    </div>
+
+    <div id="empty-form" class="hidden"> {{ formset.empty_form }}</div>
+    <button id="add-more" type="button">Add Pump</button>
+    <div class="htmx-indicator">Loading...</div>
+    <button class="htmx-inverted-indicator" type="submit">Save</button>
+    {% if message %}
+        {{ message }}
+    {% endif %}
+</form>

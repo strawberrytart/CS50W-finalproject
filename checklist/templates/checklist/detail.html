@@ -1,0 +1,31 @@
+{% extends 'checklist/layout.html' %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row">
+        <h1>Checklist : {{ checklist.salesOrder }}</h1>
+        <ul>
+            <li>Customer: {{ checklist.customer }}</li>
+            <li>Date Created: {{ checklist.dateCreated }}</li>
+            <li>Last Updated: {{ checklist.dateEdited }}</li>
+            <li>Customer Purchase Order: {{ checklist.customerPO }}</li>
+            <li>Delivery Order: {{ checklist.deliveryOrder }}</li>
+        </ul>
+        <div><strong>Remarks:</strong></div>
+        <div><p>{{ checklist.remarks }}</p></div>
+    </div>
+
+
+
+    <div class="row">
+        {% for pump in checklist.pumps.all %}
+            <ul>
+                <li>{{ pump.model }} - {{ pump.serialnumber }}</li>
+            </ul>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

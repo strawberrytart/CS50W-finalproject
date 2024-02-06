@@ -1,0 +1,36 @@
+{% extends 'checklist/layout.html' %}
+
+{% block body %}
+    <div class="container my-5  ">
+        <div class="row mb-5">
+            <ul class="list-group">
+                {% for checklist in checklists %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col">
+                                {{ checklist.salesOrder }} - {{ checklist.customer }}
+                            </div>
+                            <div class="col">
+                                <a href="{% url 'checklist_detail' checklist.id %}" >View</a>
+                            </div>
+                            <div class="col">
+                                <a href="{% url 'checklist_update' checklist.id %}" >Edit</a>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <a href="{% url 'checklist_create' %}">
+                    <button class="btn btn-primary">Create</button>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
