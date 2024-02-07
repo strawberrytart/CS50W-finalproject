@@ -121,7 +121,7 @@ def create(request):
                         pump = pump.save(commit=False)
                         pump.checklist = checklist
                         pump.save()
-                return HttpResponseRedirect(reverse("index"))
+            return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "checklist/create.html",{
                 "form": form,

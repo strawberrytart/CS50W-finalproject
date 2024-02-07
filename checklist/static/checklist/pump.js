@@ -32,6 +32,46 @@ function addNewForm(){
     formList.append(emptyForm)
 }
 
+
+// function addNewForm() {
+//     const emptyForm = document.querySelector("#empty-form").cloneNode(true);
+//     const totalNewForms = document.querySelector("#id_form-TOTAL_FORMS");
+//     const currentFormCount = document.querySelectorAll(".pump-form").length;
+
+//     emptyForm.setAttribute("class", "pump-form");
+//     emptyForm.setAttribute("id", `form-${currentFormCount}`);
+//     const regex = new RegExp("__prefix__", "g");
+//     emptyForm.innerHTML = emptyForm.innerHTML.replace(regex, currentFormCount);
+//     emptyForm.style.display = "flex";
+
+//     // Update the names of form fields
+//     emptyForm.querySelectorAll("input, select, textarea").forEach(function (input) {
+//         const oldName = input.getAttribute("name");
+//         const newName = oldName.replace(/-\d+-/, `-${currentFormCount}-`);
+//         input.setAttribute("name", newName);
+
+//         if (input.hasAttribute("id")) {
+//             const oldId = input.getAttribute("id");
+//             const newId = oldId.replace(/-\d+-/, `-${currentFormCount}-`);
+//             input.setAttribute("id", newId);
+
+//             const labelFor = document.querySelector(`label[for='${oldId}']`);
+//             if (labelFor) {
+//                 labelFor.setAttribute("for", newId);
+//             }
+//         }
+//     });
+
+//     totalNewForms.setAttribute("value", currentFormCount + 1);
+
+//     emptyForm.querySelector("#remove-button").addEventListener("click", function () {
+//         removeForm(emptyForm);
+//     });
+
+//     const formList = document.querySelector(".pump-form-list");
+//     formList.appendChild(emptyForm);
+// }
+
 function removeForm(formToRemove){
     // Remove the form from the DOM
     formToRemove.remove()
