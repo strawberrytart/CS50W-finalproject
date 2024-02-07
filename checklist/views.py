@@ -125,7 +125,7 @@ def create(request):
         else:
             return render(request, "checklist/create.html",{
                 "form": form,
-                "formset": formset,
+                "formset": sub_formset,
             })
         
     return render(request, "checklist/create.html",{
