@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
-from .models import Checklist, Pump
-from .forms import ChecklistForm, PumpForm
+from .models import Checklist, Pump, Book
+from .forms import ChecklistForm, PumpForm, BookForm
 from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponseRedirect
 
@@ -65,6 +65,7 @@ def checklist_update(request, checklist_id):
             for pump in sub_formset:
                 if pump.is_valid():
                     if pump.cleaned_data != {}:
+                        print(pump.cleaned_data)
                         pump = pump.save(commit = False)
                         if pump.checklist is None:
                             pump.checklist = checklist 
@@ -98,21 +99,25 @@ def checklist_update(request, checklist_id):
 
 def create(request):
     PumpFormSet = modelformset_factory(Pump, form = PumpForm, extra = 1)
+    
     formset = PumpFormSet(queryset= Pump.objects.none())
     #instantiate empty form
     form = ChecklistForm()
 
     if request.method == "POST":
         form = ChecklistForm(request.POST)
-        formset = PumpFormSet(request.POST)
-        if all([form.is_valid(), formset.is_valid()]):
+        sub_formset = PumpFormSet(request.POST)
+        print(sub_formset)
+        if all([form.is_valid(), sub_formset.is_valid()]):
             #Saves the form data into a new 'Checklist' object without committing it to database yet, allowing for further modifications
             checklist = form.save(commit = False)
             checklist.save()
+            print(checklist)
 
-            for pump in formset:
+            for pump in sub_formset:
                 if pump.is_valid():
-                    if pump.cleaned_data != {}:
+                    print("Pump is valid")
+                    if pump.cleaned_data !={}:
                         pump = pump.save(commit=False)
                         pump.checklist = checklist
                         pump.save()
@@ -122,9 +127,18 @@ def create(request):
                 "form": form,
                 "formset": formset,
             })
+        
     return render(request, "checklist/create.html",{
         "form": form,
         "formset": formset,
     })
 
 
+def book(request):
+
+
+    BookFormSet = modelformset_factory(Book,form = BookForm, extra = 1)
+    formset = BookFormSet()
+    return render(request, "checklist/books.html", {
+        "formset": formset,
+    })

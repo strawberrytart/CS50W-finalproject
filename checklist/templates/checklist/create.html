@@ -4,22 +4,30 @@
 {% block body %}
     <div class="container">
         <h1>Create Checklist</h1>
-        <form method="POST" action="{% url 'checklist_create' %}">
+        <form method = "POST" action ="{% url 'checklist_create' %}">
             {% csrf_token %}
             {{ form.as_p }}
-            
+        
             {{ formset.management_form }}
             <div class="pump-form-list">
                 {% for form in formset %}
                     <div class="pump-form">
-                {{ form.as_p }}
+                        {{ form.as_p }}
                     </div>
                     <hr>
                 {% endfor %}
             </div>
-            <div id="empty-form" class="hidden"> {{ formset.empty_form }}</div>
+        
+            <div id="empty-form" class="hidden"> 
+                {{ formset.empty_form }}
+                <button type="button" id="remove-button">Remove</button>
+            </div>
             <button id="add-more" type="button">Add Pump</button>
-            <button class="btn btn-primary" type="submit">Save</button>
+            <!-- <div class="htmx-indicator">Loading...</div> -->
+            <button class="" type="submit">Save</button>
+            {% if message %}
+                {{ message }}
+            {% endif %}
         </form>
 
   

@@ -70,3 +70,16 @@ class Impeller(models.Model):
 
     def __str__(self):
         return f"{self.size} x {self.quantity}"
+    
+    
+    
+class Book(models.Model):
+
+    name = models.CharField(max_length=255)
+    isbn_number = models.CharField(max_length=13)
+
+    class Meta:
+        db_table = 'book'
+
+    def __str__(self):
+        return self.name

@@ -4,7 +4,33 @@
 {% block body %}
 <div class="container">
     <h1> {{ checklist.salesOrder }}</h1>
-    {% include 'checklist/partials/forms.html' %}
+    <form method = "POST" action ="{% url 'checklist_update' checklist.id %}">
+        <!-- hx-post="{% url 'checklist_update' checklist.id %}" hx-swap = "outerHTML" -->
+        {% csrf_token %}
+        {{ form.as_p }}
+    
+        {{ formset.management_form }}
+        <div class="pump-form-list">
+            {% for form in formset %}
+                <div class="pump-form">
+                    {{ form.as_p }}
+                </div>
+                <hr>
+            {% endfor %}
+        </div>
+    
+        <div id="empty-form" class="hidden"> 
+            {{ formset.empty_form }}
+            <button type="button" id="remove-button">Remove</button>
+        </div>
+        <button id="add-more" type="button">Add Pump</button>
+        <!-- <div class="htmx-indicator">Loading...</div> -->
+        <button class="" type="submit">Save</button>
+        {% if message %}
+            {{ message }}
+        {% endif %}
+    </form>
+    
 </div>
 
 {% endblock %}

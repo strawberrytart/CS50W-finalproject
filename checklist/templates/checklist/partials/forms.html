@@ -7,16 +7,19 @@
     <div class="pump-form-list">
         {% for form in formset %}
             <div class="pump-form">
-        {{ form.as_p }}
+                {{ form.as_p }}
             </div>
             <hr>
         {% endfor %}
     </div>
 
-    <div id="empty-form" class="hidden"> {{ formset.empty_form }}</div>
+    <div id="empty-form" class="hidden"> 
+        {{ formset.empty_form }}
+        <button type="button" id="remove-button">Remove</button>
+    </div>
     <button id="add-more" type="button">Add Pump</button>
-    <div class="htmx-indicator">Loading...</div>
-    <button class="htmx-inverted-indicator" type="submit">Save</button>
+    <!-- <div class="htmx-indicator">Loading...</div> -->
+    <button class="" type="submit">Save</button>
     {% if message %}
         {{ message }}
     {% endif %}

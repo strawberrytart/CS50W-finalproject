@@ -1,5 +1,5 @@
 from django import forms
-from .models import Checklist, Pump
+from .models import Checklist, Pump, Book
 from django.forms import ModelForm
 
 
@@ -35,3 +35,13 @@ class PumpForm(ModelForm):
         #     "shipmentBatch": forms.TextInput(attrs={"required":True}),
         # }
 
+
+class BookForm(ModelForm):
+    class Meta:
+        model = Book
+
+        fields = ["name"]
+
+        widgets = {
+            "name" : forms.TextInput(attrs={"class":"form-control", "placeholder": "Enter Book Name Here"},)
+        }
