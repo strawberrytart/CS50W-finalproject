@@ -1,0 +1,54 @@
+{% extends 'checklist/layout.html' %}
+
+{% load static %}
+
+{% block body %}
+
+    <div class=container>
+        <div class="row">
+            {% for pump in pumps %}
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <h5 class="card-header">{{ pump.model }} - {{ pump.serialnumber }}</h5>
+                            <div class="card-body">
+                            <p class="card-text">
+                                {% if pump.had_motor %}
+                                    {{ pump.motor }}
+                                {% else %}
+                                    Bare pump
+                                {% endif %}
+                            </p>
+                            <p class="card-text"> Shipment Batch: {{ shipmentNumber }}</p>
+                            <h5 class="card-title">Baseplate</h5>
+                            <p class="card-text"> {{ pump.baseplate }}</p>
+                            <h5 class="card-title">Quality Check </h5>
+                            <p class="card-text">
+                                <ul>
+                                    <li> Can Shaft be turned by hand? - {{ pump.qualitycheck.canShaftBeTurnedByHand }}</li>
+                                    <li> Is the yellow cover installed? - {{ pump.qualitycheck.isTheYellowShaftCoverInstalle }}</li>
+                                    <li> Is the wire mesh provided? - {{ pump.qualitycheck.isTheWireMeshProvided }}</li>
+                                    <li> Is the inlet & outlet cover installed?  - {{ pump.qualitycheck.inletCover }}</li>
+                                    <li> Is the catalog attached to the pump? - {{ pump.qualitycheck.catalogProvided }}</li>
+                                </ul>
+                            </p>
+                            <a href="{% url 'editpump' pump.id %}" class="btn btn-primary">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    
+
+
+    </div>
+
+
+
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

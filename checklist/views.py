@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
-from .models import Checklist, Pump, Book
-from .forms import ChecklistForm, PumpForm, BookForm
+from .models import Checklist, Pump, Book, Baseplate, QualityCheck
+from .forms import ChecklistForm, PumpForm, BookForm, PumpFormComplete, BaseplateForm, QualityCheckForm
 from django.forms import modelformset_factory, inlineformset_factory
 from django.http import HttpResponseRedirect
 
@@ -35,7 +35,7 @@ def checklist_update(request, checklist_id):
         checklist= None
     pumps = checklist.pumps.all()
 
-    PumpFormSet = modelformset_factory(Pump, form = PumpForm, extra = 1)
+    PumpFormSet = modelformset_factory(Pump, form = PumpForm, extra = 0)
 
     #Instantiate the form
     formset = PumpFormSet(queryset = pumps )
@@ -97,6 +97,70 @@ def checklist_update(request, checklist_id):
     })
 
 
+def checklist_updatev2(request, checklist_id):
+
+    try:
+        checklist = Checklist.objects.get(id = checklist_id)
+
+    except Checklist.DoesNotExist:
+        checklist = None
+    else:
+        pumps = checklist.pumps.all()
+
+    form = ChecklistForm(instance = checklist) 
+    PumpFormSet = modelformset_factory(Pump, form = PumpForm, extra = 0)
+ 
+    formset = PumpFormSet(queryset = Pump.objects.none())
+
+    if request.method == "POST":
+        print(request.POST)
+        try: 
+            c = Checklist.objects.get(id = checklist_id)
+
+        except Checklist.DoesNotExist:
+            c= None
+
+        else:
+            pumps = c.pumps.all()
+            
+        form = ChecklistForm(request.POST, instance = c)
+        formset = PumpFormSet(request.POST, queryset = pumps)
+
+        if all([form.is_valid(), formset.is_valid()]):
+            checklist = form.save(commit = False)
+            checklist.save()
+
+            for pump in formset:
+                if pump.is_valid():
+                    if pump.cleaned_data !={}:
+                        print(pump.cleaned_data)
+                        pump = pump.save(commit = False)
+                        if pump.checklist is None:
+                            pump.checklist = checklist 
+                        pump.save()
+            
+            return HttpResponseRedirect(reverse('checklist_updatev2', args=[checklist.id,]))
+
+        else:
+            return render(request, "checklist/updatev2.html",{
+                "form": form,
+                "formset": formset,
+                "checklist": checklist,
+                "pumps":pumps,
+            })
+
+
+
+    return render(request, "checklist/updatev2.html",{
+        "form": form,
+        "checklist": checklist,
+        "pumps":pumps,
+        "formset": formset,
+    })
+
+
+
+
 def create(request):
     PumpFormSet = modelformset_factory(Pump, form = PumpForm, extra = 1)
     
@@ -136,9 +200,129 @@ def create(request):
 
 def book(request):
 
-
     BookFormSet = modelformset_factory(Book,form = BookForm, extra = 1)
     formset = BookFormSet()
     return render(request, "checklist/books.html", {
         "formset": formset,
+    })
+
+def edit_pump(request, pump_id):
+
+    pump = Pump.objects.get(id = pump_id)
+
+    pumpform = PumpFormComplete(instance = pump)
+    
+    #BaseplateFormSet = modelformset_factory(Baseplate , form = BaseplateForm, extra=0)
+    #formset = BaseplateFormSet()
+
+    baseplateform = BaseplateForm()
+    qualitycheckform = QualityCheckForm()
+
+    
+    try:
+        baseplate = pump.baseplate
+    except Baseplate.DoesNotExist:
+        print("Pump has no baseplate")
+    else:
+        baseplateform = BaseplateForm(instance = baseplate)
+        #formset = BaseplateFormSet(queryset=baseplate)
+
+    try:
+        qualitycheck = pump.qualitycheck
+    except QualityCheck.DoesNotExist:
+        print("Pump has not passed quality check.")
+    else:
+        qualitycheckform = QualityCheckForm(instance = qualitycheck)
+
+    #if form is submitted
+    if request.method == "POST":
+
+        p = Pump.objects.get(id = pump_id)
+
+        pumpform = PumpFormComplete(request.POST, instance = p)
+        
+        try: 
+            b = p.baseplate
+        except Baseplate.DoesNotExist:
+            baseplateform = BaseplateForm(request.POST)
+        else:
+            baseplateform = BaseplateForm(request.POST, instance = b)
+
+        try: 
+            q = p.qualitycheck
+        
+        except QualityCheck.DoesNotExist:
+            qualitycheckform = QualityCheckForm(request.POST)
+        else:
+            qualitycheckform = QualityCheckForm(request.POST, instance = q)
+
+        if all([pumpform.is_valid(),baseplateform.is_valid(), qualitycheckform.is_valid()]):
+            print("All forms are valid")
+
+
+            pump = pumpform.save(commit = False)
+            pump.save()
+            print("successfully saved pump")
+
+            baseplate = baseplateform.save(commit = False)
+            baseplate.pump = pump
+            baseplate.save()
+            print("successfully saved baseplate")
+
+
+            qc = qualitycheckform.save(commit = False)
+            qc.pump = pump
+            qc.save()
+            print("successfully saved qcform")
+
+            return HttpResponseRedirect(reverse('editpump', args=[pump.id,]))
+        else:
+
+            return render(request,"checklist/pump.html",{
+                "pump": pump,
+                "pumpform": pumpform,
+                "baseplateform": baseplateform,
+                "qualitycheckform": qualitycheckform,
+            })
+
+        
+
+    return render(request, "checklist/pump.html",{
+        "pump": pump,
+        "pumpform": pumpform,
+        "baseplateform": baseplateform,
+        "qualitycheckform": qualitycheckform,
+    })
+
+
+def delete_pump(request, pump_id):
+
+    try:
+        pump = Pump.objects.get(id = pump_id)
+    
+    except Pump.DoesNotExist:
+        pump = None
+
+        return render(request, "checklist/error.html")
+
+
+    if request.method == "POST":
+        pump = Pump.objects.get(id = pump_id)
+        checklist_id = pump.checklist.id
+        pump.delete()
+
+        return HttpResponseRedirect(reverse('checklist_updatev2', args=[checklist_id,]))
+
+
+    return render(request, "checklist/delete.html",{
+        "pump":pump,
+    })
+
+
+def allpumpsview(request):
+
+    pumps = Pump.objects.all()
+
+    return render(request, "checklist/allpump.html",{
+        "pumps": pumps
     })

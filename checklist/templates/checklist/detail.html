@@ -4,25 +4,55 @@
 
 <div class="container">
     <div class="row">
-        <h1>Checklist : {{ checklist.salesOrder }}</h1>
-        <ul>
-            <li>Customer: {{ checklist.customer }}</li>
-            <li>Date Created: {{ checklist.dateCreated }}</li>
-            <li>Last Updated: {{ checklist.dateEdited }}</li>
-            <li>Customer Purchase Order: {{ checklist.customerPO }}</li>
-            <li>Delivery Order: {{ checklist.deliveryOrder }}</li>
-        </ul>
-        <div><strong>Remarks:</strong></div>
-        <div><p>{{ checklist.remarks }}</p></div>
+        <div class="col">
+            <h1>Checklist : {{ checklist.salesOrder }}</h1>
+            <ul>
+                <li>Customer: {{ checklist.customer }}</li>
+                <li>Date Created: {{ checklist.dateCreated }}</li>
+                <li>Last Updated: {{ checklist.dateEdited }}</li>
+                <li>Customer Purchase Order: {{ checklist.customerPO }}</li>
+                <li>Delivery Order: {{ checklist.deliveryOrder }}</li>
+            </ul>
+            <div><strong>Remarks:</strong></div>
+            <div><p>{{ checklist.remarks }}</p></div>
+            <a href="{% url 'checklist_updatev2' checklist.id %}" class="btn btn-primary">Edit Checklist</a>
+        </div>
     </div>
 
 
 
     <div class="row">
         {% for pump in checklist.pumps.all %}
-            <ul>
-                <li>{{ pump.model }} - {{ pump.serialnumber }}</li>
-            </ul>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <h5 class="card-header">{{ pump.model }} - {{ pump.serialnumber }}</h5>
+                        <div class="card-body">
+                        <p class="card-text">
+                            {% if pump.had_motor %}
+                                {{ pump.motor }}
+                            {% else %}
+                                Bare pump
+                            {% endif %}
+                        </p>
+                        <p class="card-text"> Shipment Batch: {{ shipmentNumber }}</p>
+                        <h5 class="card-title">Baseplate</h5>
+                        <p class="card-text"> {{ pump.baseplate }}</p>
+                        <h5 class="card-title">Quality Check </h5>
+                        <p class="card-text">
+                            <ul>
+                                <li> Can Shaft be turned by hand? - {{ pump.qualitycheck.canShaftBeTurnedByHand }}</li>
+                                <li> Is the yellow cover installed? - {{ pump.qualitycheck.isTheYellowShaftCoverInstalle }}</li>
+                                <li> Is the wire mesh provided? - {{ pump.qualitycheck.isTheWireMeshProvided }}</li>
+                                <li> Is the inlet & outlet cover installed?  - {{ pump.qualitycheck.inletCover }}</li>
+                                <li> Is the catalog attached to the pump? - {{ pump.qualitycheck.catalogProvided }}</li>
+                            </ul>
+                        </p>
+                        <a href="{% url 'editpump' pump.id %}" class="btn btn-primary">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     </div>
 

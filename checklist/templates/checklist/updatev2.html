@@ -1,0 +1,54 @@
+{% extends 'checklist/layout.html' %}
+
+{% load static %}
+
+
+{% block body %}
+
+    <div class="container">
+        <h1> {{ checklist.salesOrder }}</h1>
+        <form action="{% url 'checklist_updatev2' checklist.id %}" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            {{ formset.management_form }}
+            <div class="pump-form-list">
+                {% for form in formset %}
+                    <div class="pump-form">
+                        {{ form.as_p }}
+                    </div>
+                    <hr>
+                {% endfor %}
+            </div>
+        
+            <div id="empty-form" class="hidden"> 
+                {{ formset.empty_form }}
+                <button type="button" id="remove-button">Remove</button>
+            </div>
+            <button id="add-more" type="button">Add Pump</button>
+            <button class="" type="submit">Save</button>
+            {% if message %}
+                {{ message }}
+            {% endif %}
+        </form>
+
+        {% for pump in pumps %}
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                <h5 class="card-title">{{ pump.model }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ pump.serialnumber }}</h6>
+                <p class="card-text">Shipment: {{ pump.shipmentNumber }}</p>
+                <a href="{% url 'editpump' pump.id %}" class="card-link"><button>Edit</button></a>
+                <a href="{% url 'deletepump' pump.id %}" class="card-link"><button>Delete</button></a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="{% static 'checklist/pump.js' %}"></script>
+{% endblock %}

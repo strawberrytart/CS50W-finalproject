@@ -1,0 +1,29 @@
+{% extends 'checklist/layout.html' %}
+
+{% load static %}
+
+{% block body %}
+<div class="container">
+
+    <h1> {{ pump.model }} - {{ pump.serialnumber }}</h1>
+
+    <form action="{% url 'editpump' pump.id %}" method="POST">
+        {% csrf_token %}
+        {{ pumpform }}
+
+        {{ baseplateform }}
+
+        {{ qualitycheckform }}
+
+        <button type="submit">Submit</button>
+    </form>
+
+</div>
+
+
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}
