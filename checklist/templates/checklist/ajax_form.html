@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        var ach = 'ACH';
+        var creditCard = 'Credit Card';
+    
+        var formUrls = {
+            ach: '{% url "payment-method-ajax" slugs.0 %}',
+            creditCard: '{% url "payment-method-ajax" slugs.1 %}',
+        };
+    
+        function load_payment_form(btn) {
+            var get_url, type;
+    
+            if (btn.innerText === ach) {
+                get_url = formUrls.ach;
+                type = ach;
+            } else if (btn.innerText === creditCard) {
+                console.log('Load credit card form');
+                get_url = formUrls.creditCard;
+                type = creditCard;
+            }
+            fetch(get_url)
+            .then(response => response.text()) 
+            .then(function(data) {
+                //console.log(data)
+                document.getElementById('form-fields').innerHTML = data;
+                document.getElementById("id-form").style.display = "block";
+
+
+                document.getElementById("cancel-button").addEventListener("click", function() {
+                    document.getElementById("id-form").style.display = "none";
+                });
+            })
+            .catch(function(error) {
+                console.log('Error fetching form:', error);
+            });
+        }
+    </script>
+    
+
+    
+</head>
+<body>
+
+    <button id="btn_ach" onclick="load_payment_form(this)">ACH</button>
+    <button id="btn_credit_card" onclick="load_payment_form(this)">Credit Card</button>
+
+    <form id="id-form" style="display: none;">
+        {% csrf_token %}
+    
+        <div id="form-fields"></div>
+        <input type="submit" value="Save Payment Details"/>
+    </form>
+
+    <div>
+        <button id="cancel-button">Cancel</button>
+    </div>
+    
+</body>
+</html>

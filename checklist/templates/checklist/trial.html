@@ -1,0 +1,20 @@
+{% extends 'checklist/layout.html' %}
+
+{% load static %}
+
+
+{% block body %}
+    <form method="post">
+        {% csrf_token %}
+        {{ pump_form.as_p }}
+        {{ pump_form.qualitycheck_set.management_form }}
+        {% for qc_form in pump_form.qualitycheck_set.forms %}
+            {{ qc_form.as_p }}
+        {% endfor %}
+        {{ pump_form.baseplate_set.management_form }}
+        {% for bp_form in pump_form.baseplate_set.forms %}
+            {{ bp_form.as_p }}
+        {% endfor %}
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}

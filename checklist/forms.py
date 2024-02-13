@@ -1,6 +1,6 @@
 from django import forms
 from .models import Checklist, Pump, Book, Baseplate, QualityCheck
-from django.forms import ModelForm
+from django.forms import ModelForm, inlineformset_factory, BaseFormSet
 
 
 class ChecklistForm(ModelForm):
@@ -92,3 +92,5 @@ class QualityCheckForm(ModelForm):
             "catalogProvided": forms.CheckboxInput(attrs={"class" : "form-check-input"}),
 
         }
+
+

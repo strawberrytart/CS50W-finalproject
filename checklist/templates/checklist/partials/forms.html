@@ -1,5 +1,4 @@
 <form method = "POST" action ="{% url 'checklist_update' checklist.id %}">
-    <!-- hx-post="{% url 'checklist_update' checklist.id %}" hx-swap = "outerHTML" -->
     {% csrf_token %}
     {{ form.as_p }}
 

@@ -1,0 +1,13 @@
+<form action = "{% url 'editpumpinline' pump.id %}" method= "POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    {{ baseplateform }}
+
+    {{ qualitycheckform }}
+
+    <button class="cancel-button" type="button">Cancel</button>
+    <button class="save-button" type="submit">Save</button>
+</form>
+
+

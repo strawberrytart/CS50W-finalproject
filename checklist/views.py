@@ -1,7 +1,7 @@
 from django.shortcuts import render, reverse
 from .models import Checklist, Pump, Book, Baseplate, QualityCheck
 from .forms import ChecklistForm, PumpForm, BookForm, PumpFormComplete, BaseplateForm, QualityCheckForm
-from django.forms import modelformset_factory, inlineformset_factory
+from django.forms import modelformset_factory
 from django.http import HttpResponseRedirect
 
 # Create your views here.
@@ -107,6 +107,7 @@ def checklist_updatev2(request, checklist_id):
     else:
         pumps = checklist.pumps.all()
 
+
     form = ChecklistForm(instance = checklist) 
     PumpFormSet = modelformset_factory(Pump, form = PumpForm, extra = 0)
  
@@ -148,8 +149,6 @@ def checklist_updatev2(request, checklist_id):
                 "checklist": checklist,
                 "pumps":pumps,
             })
-
-
 
     return render(request, "checklist/updatev2.html",{
         "form": form,
@@ -217,8 +216,6 @@ def edit_pump(request, pump_id):
 
     baseplateform = BaseplateForm()
     qualitycheckform = QualityCheckForm()
-
-    
     try:
         baseplate = pump.baseplate
     except Baseplate.DoesNotExist:
@@ -258,8 +255,6 @@ def edit_pump(request, pump_id):
 
         if all([pumpform.is_valid(),baseplateform.is_valid(), qualitycheckform.is_valid()]):
             print("All forms are valid")
-
-
             pump = pumpform.save(commit = False)
             pump.save()
             print("successfully saved pump")
@@ -268,8 +263,6 @@ def edit_pump(request, pump_id):
             baseplate.pump = pump
             baseplate.save()
             print("successfully saved baseplate")
-
-
             qc = qualitycheckform.save(commit = False)
             qc.pump = pump
             qc.save()
@@ -284,9 +277,6 @@ def edit_pump(request, pump_id):
                 "baseplateform": baseplateform,
                 "qualitycheckform": qualitycheckform,
             })
-
-        
-
     return render(request, "checklist/pump.html",{
         "pump": pump,
         "pumpform": pumpform,
@@ -326,3 +316,135 @@ def allpumpsview(request):
     return render(request, "checklist/allpump.html",{
         "pumps": pumps
     })
+
+
+def delete_pump(request, pump_id):
+    try:
+        pump = Pump.objects.get(id = pump_id)
+    
+    except Pump.DoesNotExist:
+        pump = None
+
+        return render(request, "checklist/error.html")
+    if request.method == "POST":
+        pump = Pump.objects.get(id = pump_id)
+        checklist_id = pump.checklist.id
+        pump.delete()
+
+        return HttpResponseRedirect(reverse('checklist_updatev2', args=[checklist_id,]))
+    return render(request, "checklist/partials/deletepumpform.html",{
+        "pump":pump,
+    })
+
+
+def editpumpinline(request,pump_id): 
+    context = None 
+    try:
+        pump = Pump.objects.get(id= pump_id)
+    except Pump.DoesNotExist:
+        pump = None
+    
+    baseplateform = BaseplateForm()
+    qualitycheckform = QualityCheckForm()
+
+    try:
+        baseplate = pump.baseplate
+    except Baseplate.DoesNotExist:
+        baseplate = None
+    else:
+        baseplateform = BaseplateForm(instance = baseplate)
+        #formset = BaseplateFormSet(queryset=baseplate)
+
+    try:
+        qualitycheck = pump.qualitycheck
+    except QualityCheck.DoesNotExist:
+        qualitycheck = None
+    else:
+        qualitycheckform = QualityCheckForm(instance = qualitycheck)
+
+
+    context = {"form": PumpForm(instance = pump),
+               "pump" : pump,
+               "baseplateform": baseplateform,
+               "qualitycheckform" : qualitycheckform }
+    
+    if request.method == "POST":
+        try:
+            pump = Pump.objects.get(id = pump_id)
+        except Pump.DoesNotExist:
+            pump = None
+        
+        form = PumpForm(request.POST, instance = pump)
+
+        try:
+            b = pump.baseplate
+        except Baseplate.DoesNotExist:
+            baseplateform = BaseplateForm(request.POST)
+        else:
+            baseplateform = BaseplateForm(request.POST, instance = b)
+        
+        try: 
+            q = pump.qualitycheck
+        
+        except QualityCheck.DoesNotExist:
+            qualitycheckform = QualityCheckForm(request.POST)
+        
+        else:
+            qualitycheckform = QualityCheckForm(request.POST, instance = q)
+        
+        
+        # Manually set some invalid data on the form fields for testing
+        if all([form.is_valid(), baseplateform.is_valid(), qualitycheckform.is_valid()]):
+            pump = form.save()
+
+            baseplate = baseplateform.save(commit = False)
+            baseplate.pump = pump
+            baseplate.save()
+
+            qc = qualitycheckform.save(commit = False)
+            qc.pump = pump
+            qc.save()
+
+            return render(request, "checklist/partials/pump_inline.html", {
+                "pump": pump
+            })
+        else:
+            context = {
+                "form": form,
+                "pump": pump,
+                "baseplateform": baseplateform,
+                "qualitycheckform": qualitycheckform,
+            }
+    return render(request, "checklist/partials/pumpinlineform.html", context)
+
+
+
+def payment_method_ajax(request, method):  # method is your slug
+    """Load a dynamic form based on the desired payment method"""
+
+    pump = Pump.objects.get(id = 133)
+    options = {
+        'ach': PumpForm(instance = pump),  # Dynamic form #1
+        'credit-card': ChecklistForm(),  #  Dynamic form #2
+    }
+
+    if method in options.keys():
+        context = {'form': options[method]}
+    else:
+        context = None
+
+    template = 'checklist/partials/form_from_ajax.html'
+    return render(request, template, context)
+
+
+def main_ajax(request):
+
+    context = {
+        'target': 'Add a New Payment Method',
+        'h1': 'Add a New Payment Method',
+        'ach': 'Save an ACH Profile',
+        'credit_card': 'Save a Credit Card Profile',
+        'slugs': ['ach', 'credit-card'],  # Here are the slugs ****
+    }
+
+    return render(request,"checklist/ajax_form.html", context)

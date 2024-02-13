@@ -1,15 +1,58 @@
 document.addEventListener("DOMContentLoaded", function(){   
-
-    // document.querySelector("#id_form-__prefix__-serialnumber").required = false
-    // document.querySelector("#id_form-__prefix__-model").required = false
-    // document.querySelector("#id_form-__prefix__-shipmentBatch").required = false
-    // document.querySelector("#id_form-__prefix__-has_motor").required = false
     document.addEventListener('click', function(event){
        if (event.target.id == 'add-more'){
             addNewForm()
         }
     })
-})
+
+    
+    document.querySelectorAll(".edit-pump-button").forEach(function(button){
+        button.addEventListener('click', function(){
+            editpumpinline(button)
+        });
+    });
+
+    document.querySelectorAll(".delete-pump-button").forEach(function(button){
+        button.addEventListener('click', function(){
+            loadDeletePumpForm(button)
+            // pumpId = button.dataset.id
+            // console.log(pumpId)
+            // pumpModel = button.parentElement.querySelector('.card-title').innerText
+            // pumpSerialNumber = button.parentElement.querySelector('.pump_serialnumber').innerText
+            
+            // form = document.querySelector('#deletePumpModal').querySelector('#deletePumpForm');
+            // confirmationMessage = document.createElement('p');
+            // confirmationMessage.textContent = 'Are you sure you want to delete ' + pumpModel + ' - ' + pumpSerialNumber + '?';
+            // form.appendChild = confirmationMessage
+
+        })
+    })
+});
+
+
+
+function loadDeletePumpForm(btn){
+    pumpId = btn.dataset.id
+    console.log(pumpId)
+    fetch(`/delete/${pumpId}`,{
+        method: 'GET',
+    })
+    .then(response => response.text())
+    .then(function(data){
+        console.log(data)
+        pumpModal = document.querySelector('#deletePumpModal')
+        modalBody = pumpModal.querySelector('.modal-body')
+        modalBody.innerHTML = data
+
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+
+
 
 function addNewForm(){
     const emptyForm = document.querySelector("#empty-form").cloneNode(true)
@@ -31,46 +74,6 @@ function addNewForm(){
     })
     formList.append(emptyForm)
 }
-
-
-// function addNewForm() {
-//     const emptyForm = document.querySelector("#empty-form").cloneNode(true);
-//     const totalNewForms = document.querySelector("#id_form-TOTAL_FORMS");
-//     const currentFormCount = document.querySelectorAll(".pump-form").length;
-
-//     emptyForm.setAttribute("class", "pump-form");
-//     emptyForm.setAttribute("id", `form-${currentFormCount}`);
-//     const regex = new RegExp("__prefix__", "g");
-//     emptyForm.innerHTML = emptyForm.innerHTML.replace(regex, currentFormCount);
-//     emptyForm.style.display = "flex";
-
-//     // Update the names of form fields
-//     emptyForm.querySelectorAll("input, select, textarea").forEach(function (input) {
-//         const oldName = input.getAttribute("name");
-//         const newName = oldName.replace(/-\d+-/, `-${currentFormCount}-`);
-//         input.setAttribute("name", newName);
-
-//         if (input.hasAttribute("id")) {
-//             const oldId = input.getAttribute("id");
-//             const newId = oldId.replace(/-\d+-/, `-${currentFormCount}-`);
-//             input.setAttribute("id", newId);
-
-//             const labelFor = document.querySelector(`label[for='${oldId}']`);
-//             if (labelFor) {
-//                 labelFor.setAttribute("for", newId);
-//             }
-//         }
-//     });
-
-//     totalNewForms.setAttribute("value", currentFormCount + 1);
-
-//     emptyForm.querySelector("#remove-button").addEventListener("click", function () {
-//         removeForm(emptyForm);
-//     });
-
-//     const formList = document.querySelector(".pump-form-list");
-//     formList.appendChild(emptyForm);
-// }
 
 function removeForm(formToRemove){
     // Remove the form from the DOM
@@ -130,4 +133,104 @@ function removeForm(formToRemove){
             }
         });
     });
+}
+
+function editpumpinline(btn){
+    console.log(btn.dataset.id)
+    const pumpId = btn.dataset.id
+    const container = document.querySelector(`#pump-${pumpId}-form-container`)
+    const originalContent = container.innerHTML;
+
+    fetch(`/editpumpinline/${ pumpId }`)
+    .then(response => response.text())
+    .then(function(data){
+        console.log(data)
+        const editPumpInlineForm = data;
+
+        // editPumpInlineForm.innerHTML = data
+        // editPumpInlineForm.method = "post"; // Set the form method
+        // editPumpInlineForm.action = "//"; // Set the form action
+
+        container.innerHTML = '';
+
+        //Create a div for cancel button
+        // const cancelButton = document.createElement("div");
+        // cancelButton.classList.add("text-left")
+        // cancelButton.innerHTML =`<button class="cancel-button">Cancel</button>`
+
+        // //Create a div for save button
+        // const saveButton = document.createElement("div");
+        // saveButton.classList.add("text-left")
+        // saveButton.innerHTML =`<button class="save-button">Save</button>`
+
+
+        container.innerHTML = editPumpInlineForm;
+        // container.appendChild(cancelButton);
+        // container.appendChild(saveButton);
+
+        // container.querySelector(".save-button").addEventListener("click", function(){
+        //     saveFormData(editPumpInlineForm, pumpId, container);
+        // })
+
+        container.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission behavior
+            //console.log("form submitted")
+            const form = event.target;
+            console.log(form)
+            //console.log(form.parentElement)
+            saveFormData(form, pumpId, form.parentElement, originalContent);
+        });
+
+
+        container.querySelector(".cancel-button").addEventListener("click", function() {
+            console.log("Cancel button pressed")
+            container.innerHTML = '';
+            container.innerHTML = originalContent;
+            //console.log(container.querySelector(".edit-pump-button"))
+
+            container.querySelector(".edit-pump-button").addEventListener('click', function(){
+                editpumpinline(this)
+            });
+        });
+            
+    })
+}
+
+function saveFormData(form, pumpId, container, originalContent){
+    // console.log("save function called")
+    // const tempContainer = document.createElement('div');
+    // tempContainer.innerHTML = form;
+    // const htmlForm = tempContainer.querySelector('form')
+    fetch(`/editpumpinline/${ pumpId }`, {
+        method: 'POST',
+        body: new FormData(form) // Serialize the form data
+    })
+    .then(response => response.text())
+    .then(function(data) {
+        // Update the container with the response data
+        console.log(data)
+        container.innerHTML = data;
+        if (data.includes('errorlist')) {
+            container.querySelector(".cancel-button").addEventListener("click", function() {
+                console.log("Cancel button pressed")
+                container.innerHTML = '';
+                container.innerHTML = originalContent;
+    
+                container.querySelector(".edit-pump-button").addEventListener('click', function(){
+                    editpumpinline(this)
+                });
+            });
+            
+        }
+        else{
+            container.querySelector(".edit-pump-button").addEventListener('click', function(){
+                editpumpinline(this)
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    return false;
+
 }

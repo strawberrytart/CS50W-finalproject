@@ -33,19 +33,50 @@
         </form>
 
         {% for pump in pumps %}
-            <div class="card" style="width: 18rem;">
-                <div class="card-body">
-                <h5 class="card-title">{{ pump.model }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">{{ pump.serialnumber }}</h6>
-                <p class="card-text">Shipment: {{ pump.shipmentNumber }}</p>
-                <a href="{% url 'editpump' pump.id %}" class="card-link"><button>Edit</button></a>
-                <a href="{% url 'deletepump' pump.id %}" class="card-link"><button>Delete</button></a>
+            <div class="row" id="pump-{{ pump.id }}-form-container">
+                <div class="card">
+                    <div class="card-body">
+                    <h5 class="card-title">{{ pump.model }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted pump_serialnumber">{{ pump.serialnumber }}</h6>
+                    <p class="card-text">Shipment: {{ pump.shipmentBatch }}</p>
+                    <p> Baseplate: {{ pump.baseplate.dimension_A }} x {{ pump.baseplate.dimension_B }} x {{ pump.baseplate.dimension_C }} - {{ pump.baseplate.unit }}</p>
+                    <p>
+                        <ul>    
+                            <li> Can Shaft be turned by hand? - {{ pump.qualitycheck.canShaftBeTurnedByHand }}</li>
+                            <li> Is the yellow cover installed? - {{ pump.qualitycheck.isTheYellowShaftCoverInstalle }}</li>
+                            <li> Is the wire mesh provided? - {{ pump.qualitycheck.isTheWireMeshProvided }}</li>
+                            <li> Is the inlet & outlet cover installed?  - {{ pump.qualitycheck.inletCover }}</li>
+                            <li> Is the catalog attached to the pump? - {{ pump.qualitycheck.catalogProvided }}</li>
+                        </ul>
+                    </p>
+                    <button class="edit-pump-button" data-id = "{{ pump.id }}" id = "edit-pump-{{ pump.id }}-button">Edit</button>
+                    <button data-id = "{{ pump.id }}" type="button" class="delete-pump-button" data-bs-toggle="modal" data-bs-target="#deletePumpModal" id="delete-pump-{{ pump.id }}-button">
+                        Delete
+                      </button>
+                    </div>
                 </div>
             </div>
         {% endfor %}
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="deletePumpModal" tabindex="-1" aria-labelledby="deletePumpModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirm Deletion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
 
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" form="modalform">Delete</button>
+            </div>
+        </div>
+        </div>
+    </div>
 {% endblock %}
 
 

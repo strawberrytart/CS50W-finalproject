@@ -1,0 +1,4 @@
+<form action = "{% url 'deletepump' pump.id %}" method= "POST" id="modalform">
+    {% csrf_token %}
+    Are you sure you want to delete {{ pump.model }} - {{ pump.serialnumber }}
+</form>

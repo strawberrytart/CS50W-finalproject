@@ -1,16 +1,21 @@
-<div class="row">
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
-          <h5 class="card-title">{{ object.model }}</h5>
-          <h6 class="card-subtitle mb-2 text-muted">{{ object.serialnumber }}</h6>
-          {% if object.has_motor %}
-            <p class="card-text">Motor: {{ object.motor }}</p>
-          {% else %}
-            <p class="card-text">Bare pump</p>
-          {% endif %}
-          <p class="card-text">Shipment Batch: {{ object.shipmentBatch}}</p>
-          <p class="card-text">Baseplate: {{ object.baseplate}}</p>
-          <button class="btn btn-primary">Edit</button>
-        </div>
-      </div>
+<div class="card">
+    <div class="card-body">
+    <h5 class="card-title">{{ pump.model }}</h5>
+    <h6 class="card-subtitle mb-2 text-muted">{{ pump.serialnumber }}</h6>
+    <p class="card-text">Shipment: {{ pump.shipmentBatch }}</p>
+    
+    
+    <p> Baseplate: {{ pump.baseplate.dimension_A }} x {{ pump.baseplate.dimension_B }} x {{ pump.baseplate.dimension_C }} - {{ pump.baseplate.unit }}</p>
+    <p>
+        <ul>
+            <li> Can Shaft be turned by hand? - {{ pump.qualitycheck.canShaftBeTurnedByHand }}</li>
+            <li> Is the yellow cover installed? - {{ pump.qualitycheck.isTheYellowShaftCoverInstalle }}</li>
+            <li> Is the wire mesh provided? - {{ pump.qualitycheck.isTheWireMeshProvided }}</li>
+            <li> Is the inlet & outlet cover installed?  - {{ pump.qualitycheck.inletCover }}</li>
+            <li> Is the catalog attached to the pump? - {{ pump.qualitycheck.catalogProvided }}</li>
+        </ul>
+    </p>
+    <button class="edit-pump-button" data-id = "{{ pump.id }}" id = "edit-pump-{{ pump.id }}-button">Edit</button>
+    <a href="{% url 'deletepump' pump.id %}" class="card-link"><button>Delete</button></a>
+    </div>
 </div>
