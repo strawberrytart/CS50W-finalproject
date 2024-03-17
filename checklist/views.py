@@ -2,7 +2,7 @@ from django.shortcuts import render, reverse
 from .models import Checklist, Pump, Book, Baseplate, QualityCheck
 from .forms import ChecklistForm, PumpForm, BookForm, PumpFormComplete, BaseplateForm, QualityCheckForm
 from django.forms import modelformset_factory
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 
 # Create your views here.
 
@@ -392,8 +392,7 @@ def editpumpinline(request,pump_id):
         else:
             qualitycheckform = QualityCheckForm(request.POST, instance = q)
         
-        
-        # Manually set some invalid data on the form fields for testing
+    
         if all([form.is_valid(), baseplateform.is_valid(), qualitycheckform.is_valid()]):
             pump = form.save()
 
@@ -448,3 +447,196 @@ def main_ajax(request):
     }
 
     return render(request,"checklist/ajax_form.html", context)
+
+
+def checklist_updatev3(request, checklist_id):
+    try:
+        checklist = Checklist.objects.get(id = checklist_id)
+
+    except Checklist.DoesNotExist:
+        checklist = None
+    
+    form = ChecklistForm(instance = checklist)
+    pumpform = PumpForm()
+    baseplateform = BaseplateForm()
+    qualitycheckform = QualityCheckForm
+
+    if request.method == "POST":
+        try: 
+            c = Checklist.objects.get(id = checklist_id)
+        except Checklist.DoesNotExist:
+            c = None
+
+        # modified_post_data = request.POST.copy()
+        # modified_post_data['salesOrder'] = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah' 
+
+        form = ChecklistForm(request.POST, instance = c)
+ 
+        if form.is_valid():
+            checklist = form.save(commit = False)
+            checklist.save()
+            return render(request, "checklist/partials/checklistdetails.html",{
+                "checklist": checklist,
+            })
+        
+        else:
+            print("form invalid")
+            return render(request,"checklist/partials/checklistformv3.html", {
+                "checklist": checklist,
+                "form": form,
+            })
+            
+
+    return render(request,"checklist/updatev3.html", {
+        "checklist": checklist,
+        "form": form,
+        "baseplateform": form,
+        "qualitycheckform": qualitycheckform,
+        "pumpform": pumpform,
+        "baseplateform": baseplateform,
+    })
+
+def add_pump_ajax(request, checklist_id):
+
+    if request.method == "POST":
+        try:
+            checklist = Checklist.objects.get(id = checklist_id)
+        except:
+            checklist = None
+
+        pumpform = PumpForm(request.POST)
+        baseplateform = BaseplateForm(request.POST)
+        qualitycheckform = QualityCheckForm(request.POST)
+
+        if all([pumpform.is_valid(), baseplateform.is_valid(), qualitycheckform.is_valid()]):
+            pump = pumpform.save(commit = False)
+            pump.checklist = checklist
+            pump.save()
+
+            baseplate = baseplateform.save(commit = False)
+            baseplate.pump = pump
+            baseplate.save()
+
+            qualitycheck = qualitycheckform.save(commit = False)
+            qualitycheck.pump = pump
+            qualitycheck.save()
+
+            return render(request,"checklist/partials/pumpdetails.html",{
+                "pump": pump,
+            })
+
+        else:
+            print(checklist)
+            return render(request, "checklist/partials/addpumpform.html",{
+                "pumpform" : pumpform,
+                "baseplateform": baseplateform,
+                "qualitycheckform": qualitycheckform,
+                "checklist_id": checklist_id,
+            })
+    
+    return render(request, "checklist/updatev3.html")
+
+
+def edit_pump_ajax(request, pump_id):
+    
+    baseplateform = BaseplateForm()
+    qualitycheckform = QualityCheckForm()
+    try:
+        pump = Pump.objects.get(id = pump_id)
+    except:
+        pump = None
+    else:
+        pumpform = PumpForm(instance = pump)
+
+    try:
+        baseplate = pump.baseplate
+    except Baseplate.DoesNotExist:
+        baseplate = None
+    else:
+        baseplateform = BaseplateForm(instance = baseplate)
+
+    try:
+        qualitycheck = pump.qualitycheck
+    except QualityCheck.DoesNotExist:
+        qualitycheck = None
+    else:
+        qualitycheckform = QualityCheckForm(instance = qualitycheck)
+    
+
+    if request.method == 'POST':
+        try:
+            pump = Pump.objects.get(id = pump_id)
+        except Pump.DoesNotExist:
+            pump = None
+        pumpform = PumpForm(request.POST, instance = pump)
+        
+        try:
+            b = pump.baseplate
+        except Baseplate.DoesNotExist:
+            baseplateform = BaseplateForm(request.POST)
+        else:
+            baseplateform = BaseplateForm(request.POST, instance = b)
+
+        try: 
+            q = pump.qualitycheck
+        
+        except QualityCheck.DoesNotExist:
+            qualitycheckform = QualityCheckForm(request.POST)
+        
+        else:
+            qualitycheckform = QualityCheckForm(request.POST, instance = q)
+
+        if all([pumpform.is_valid(), baseplateform.is_valid(), qualitycheckform.is_valid()]):
+            pump = pumpform.save()
+
+            baseplate = baseplateform.save(commit = False)
+            baseplate.pump = pump
+            baseplate.save()
+
+            qc = qualitycheckform.save(commit = False)
+            qc.pump = pump 
+            qc.save()
+
+            return render(request, "checklist/partials/pumpdetails.html",{
+                "pump": pump,
+            })
+
+        else:
+            return render(request, "checklist/partials/editpumpform.html", {
+                "pump":pump,
+                "pumpform" : pumpform,
+                "baseplateform": baseplateform,
+                "qualitycheckform": qualitycheckform,
+            })
+
+    return render(request, "checklist/partials/editpumpform.html",{
+        "pump":pump,
+        "pumpform" : pumpform,
+        "baseplateform": baseplateform,
+        "qualitycheckform": qualitycheckform,
+    })
+
+
+def delete_pump_ajax(request, pump_id):
+    print(pump_id)
+    try:
+        pump = Pump.objects.get(id = pump_id)
+
+    except Pump.DoesNotExist:
+        pump = None
+
+    if request.method == "POST":
+        try:
+            pump.delete()
+        except:
+
+            return JsonResponse({"error": "This object can't be deleted", "id": pump_id}, status = 201)
+        return JsonResponse({"message": "Pump deleted successfully.", "id": pump_id}, status = 201)
+    
+    return render(request, "checklist/partials/deletepumpformajax.html",{
+        "pump": pump,
+    })
+    
+
+
+    

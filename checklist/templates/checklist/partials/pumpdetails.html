@@ -1,0 +1,30 @@
+<div class="row" id="pump-{{ pump.id }}">
+    <div class="col-6">
+        <div class="card">
+            <h5 class="card-header">{{ pump.model }} - {{ pump.serialnumber }}</h5>
+            <div class="card-body">
+            <p class="card-text">
+                {% if pump.had_motor %}
+                    {{ pump.motor }}
+                {% else %}
+                    Bare pump
+                {% endif %}
+            </p>
+            <p class="card-text"> Shipment Batch: {{ pump.shipmentNumber }}</p>
+            <h5 class="card-title">Baseplate</h5>
+            <p class="card-text"> {{ pump.baseplate }}</p>
+            <h5 class="card-title">Quality Check </h5>
+            <p class="card-text">
+                <ul>
+                    <li> Can Shaft be turned by hand? - {{ pump.qualitycheck.canShaftBeTurnedByHand }}</li>
+                    <li> Is the yellow cover installed? - {{ pump.qualitycheck.isTheYellowShaftCoverInstalled }}</li>
+                    <li> Is the wire mesh provided? - {{ pump.qualitycheck.isTheWireMeshProvided }}</li>
+                    <li> Is the inlet & outlet cover installed?  - {{ pump.qualitycheck.inletCover }}</li>
+                    <li> Is the catalog attached to the pump? - {{ pump.qualitycheck.catalogProvided }}</li>
+                </ul>
+            </p>
+            <button class="btn btn-primary" data-id="{{ pump.id }}" id="editPumpBtn">Edit</button>
+            </div>
+        </div>
+    </div>
+</div>

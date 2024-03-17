@@ -1,0 +1,164 @@
+{% extends 'checklist/layout.html' %}
+
+{% load static %}
+
+{% block body %}
+    <div class="container">
+        <div class="row" id="checklist-detail-container">
+            {% include "checklist/partials/checklistdetails.html" %}
+        </div>
+        <div>
+
+            <button type="button" class="btn btn-primary" id="editChecklistBtn">
+                Edit Checklist
+            </button>
+        </div>
+        
+        <!-- Edit Checklist Modal -->
+        <div class="modal fade" id="editChecklistModal" tabindex="-1" aria-labelledby="editChecklistModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editChecklistModalLabel">Edit Checklist</h1>
+                        <button type="button" class="btn-close closeModalBtn" aria-label="Close" data-form="editChecklistForm"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editChecklistForm" method="POST" action="{% url 'checklist_updatev3' checklist.id %}" data-checklistid = "{{ checklist.id }}">
+                            {% csrf_token %}
+                            {{ form }}
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary closeModalBtn" data-form="editChecklistForm">Close</button>
+                        <button type="submit" form="editChecklistForm" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!-- Add Pump Modal -->
+        <div class="modal fade" id="addPumpModal" tabindex="-1" aria-labelledby="addPumpModal" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="addPumpModal">Add Pump</h5>
+                <button type="button" class="btn-close closePumpModalBtn" aria-label="Close" data-form="addPumpForm"></button>
+                </div>
+                <div class="modal-body addPumpModalBody">
+                    <form id="addPumpForm" data-checklistid="{{ checklist.id }}">
+                        {% csrf_token %}
+                        {{ pumpform }}
+
+                        {{ baseplateform }}
+
+                        {{ qualitycheckform }}
+                    </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary closePumpModalBtn" data-form="addPumpForm">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="addPumpForm">Save</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+         <!-- Edit Pump Modal -->
+         <div class="modal fade" id="editPumpModal" tabindex="-1" aria-labelledby="editPumpModal" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="editPumpModal">Edit Pump</h5>
+                <button type="button" class="btn-close closeEditPumpModalBtn" aria-label="Close" data-form="editPumpForm"></button>
+                </div>
+                <div class="modal-body editPumpModalBody">
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary closeEditPumpModalBtn" data-form="editPumpForm">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="editPumpForm">Save</button>
+                <button type="submit" class="btn btn-danger" id="deletePumpBtn" data-id = "">Delete</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+
+        <!-- Discard Modal -->
+        <div class="modal fade" id="modal2" tabindex="-1" aria-labelledby="modal2" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="discardChangesLabel">Discard changes</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to leave without saving?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit"  class="btn btn-danger" id="discardBtn" data-form="">Discard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="modal2" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="discardChangesLabel">Delete Pump</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit"  class="btn btn-danger" form="deletePumpForm" id="modalDeletePumpBtn">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row pumpContainer">
+            {% for pump in checklist.pumps.all %}
+                <div class="row" id="pump-{{ pump.id }}">
+                    <div class="col-6">
+                        <div class="card">
+                            <h5 class="card-header">{{ pump.model }} - {{ pump.serialnumber }}</h5>
+                            <div class="card-body">
+                            <p class="card-text">
+                                {% if pump.had_motor %}
+                                    {{ pump.motor }}
+                                {% else %}
+                                    Bare pump
+                                {% endif %}
+                            </p>
+                            <p class="card-text"> Shipment Batch: {{ shipmentNumber }}</p>
+                            <h5 class="card-title">Baseplate</h5>
+                            <p class="card-text"> {{ pump.baseplate }}</p>
+                            <h5 class="card-title">Quality Check </h5>
+                            <p class="card-text">
+                                <ul>
+                                    <li> Can Shaft be turned by hand? - {{ pump.qualitycheck.canShaftBeTurnedByHand }}</li>
+                                    <li> Is the yellow cover installed? - {{ pump.qualitycheck.isTheYellowShaftCoverInstalled }}</li>
+                                    <li> Is the wire mesh provided? - {{ pump.qualitycheck.isTheWireMeshProvided }}</li>
+                                    <li> Is the inlet & outlet cover installed?  - {{ pump.qualitycheck.inletCover }}</li>
+                                    <li> Is the catalog attached to the pump? - {{ pump.qualitycheck.catalogProvided }}</li>
+                                </ul>
+                            </p>
+                            <button class="btn btn-primary" data-id="{{ pump.id }}" id="editPumpBtn">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" id="addPumpBtn"> Add Pump </button>
+        </div>
+    </div> 
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'checklist/v3.js' %}"></script>
+{% endblock %}

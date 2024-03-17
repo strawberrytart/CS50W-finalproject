@@ -1,0 +1,4 @@
+<form id="deletePumpForm" data-pumpid = "{{ pump.id }}">
+    {% csrf_token %}
+    Are you sure you want to delete {{ pump.model }} - {{ pump.serialnumber }}? 
+</form>

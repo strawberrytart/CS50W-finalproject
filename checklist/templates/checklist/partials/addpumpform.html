@@ -1,0 +1,8 @@
+<form id="addPumpForm" data-checklistid="{{ checklist_id }}">
+    {% csrf_token %}
+    {{ pumpform }}
+
+    {{ baseplateform }}
+
+    {{ qualitycheckform }}
+</form>

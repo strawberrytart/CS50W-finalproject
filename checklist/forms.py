@@ -27,7 +27,7 @@ class ChecklistForm(ModelForm):
 class PumpForm(ModelForm):
     class Meta:
         model = Pump
-        fields = ['serialnumber','model','has_motor','shipmentBatch']
+        fields = ['model','serialnumber','has_motor','shipmentBatch']
 
         # widgets = {
         #     "serialnumber": forms.TextInput(attrs={"required":True}),
@@ -38,7 +38,7 @@ class PumpForm(ModelForm):
 class PumpFormComplete(ModelForm):
     class Meta:
         model = Pump
-        fields = ['serialnumber','model','has_motor','shipmentBatch', 'motor']
+        fields = ['model','serialnumber','has_motor','shipmentBatch', 'motor']
 
         # widgets = {
         #     "serialnumber": forms.TextInput(attrs={"required":True}),

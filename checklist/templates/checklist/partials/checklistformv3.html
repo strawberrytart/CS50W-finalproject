@@ -1,0 +1,4 @@
+<form id="editChecklistForm" method="POST" action="{% url 'checklist_updatev3' checklist.id %}" data-checklistid = "{{ checklist.id}}">
+    {% csrf_token %}
+    {{ form }}
+</form>

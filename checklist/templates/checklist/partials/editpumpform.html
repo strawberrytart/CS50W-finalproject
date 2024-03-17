@@ -1,0 +1,8 @@
+<form id="editPumpForm" data-pumpid = "{{ pump.id }}">
+    {% csrf_token %}
+    {{ pumpform }}
+
+    {{ baseplateform }}
+
+    {{ qualitycheckform }}
+</form>
